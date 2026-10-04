@@ -2,6 +2,7 @@
 
 [![Weekly collection](https://github.com/valorisa/AI-Frontier-Watcher/actions/workflows/weekly-collection.yml/badge.svg)](https://github.com/valorisa/AI-Frontier-Watcher/actions/workflows/weekly-collection.yml)
 [![Markdownlint](https://github.com/valorisa/AI-Frontier-Watcher/actions/workflows/markdownlint.yml/badge.svg)](https://github.com/valorisa/AI-Frontier-Watcher/actions/workflows/markdownlint.yml)
+[![pylint](https://github.com/valorisa/AI-Frontier-Watcher/actions/workflows/pylint.yml/badge.svg)](https://github.com/valorisa/AI-Frontier-Watcher/actions/workflows/pylint.yml)
 [![License](https://img.shields.io/github/license/valorisa/AI-Frontier-Watcher)](LICENSE)
 
 > Veille documentaire reproductible sur les modèles d'IA de pointe, avec un suivi renforcé de GPT-6 Astra, de sa disponibilité, de ses évolutions, de ses modes d'accès et de ses concurrents directs.
