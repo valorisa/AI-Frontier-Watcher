@@ -4,10 +4,10 @@
     "level": 1,
     "url": "https://openai.com/index/gpt-6-astra/",
     "priority": "high",
-    "status": 200,
-    "status_class": "accessible",
-    "title": "GPT-6 Astra: A new generation of intelligence | OpenAI",
-    "sha256": "7473c2bcb01702a9f084e98d08cbff3a21a5b8ff61e321ff2e67ec6e17b4cda3"
+    "status": 403,
+    "status_class": "inaccessible",
+    "title": null,
+    "sha256": null
   },
   "openai-astra-api": {
     "provider": "OpenAI",
@@ -24,10 +24,10 @@
     "level": 2,
     "url": "https://help.openai.com/en/articles/20001354-gpt-5-6-in-chatgpt",
     "priority": "high",
-    "status": 200,
-    "status_class": "accessible",
-    "title": "GPT-5.6 and GPT-6 Pro in ChatGPT | OpenAI Help Center",
-    "sha256": "f3e9222a24536cd30fb31e89ec1b866e484754d5ce1d251a2865a98f1941fe55"
+    "status": 403,
+    "status_class": "inaccessible",
+    "title": null,
+    "sha256": null
   },
   "anthropic-news": {
     "provider": "Anthropic",
@@ -37,7 +37,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Newsroom \\ Anthropic",
-    "sha256": "e1b0d7cd3aa344b0e8a4683d64189b5a2e1ad9ab571bf1fd605faab68e1eaadf"
+    "sha256": "f9a4633dface169a7782d8d590bdaa189d36fe28ce80324cfd5996f827dab85f"
   },
   "google-gemini-models": {
     "provider": "Google",
@@ -47,7 +47,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Models | Gemini API | Google AI for Developers",
-    "sha256": "4da4afc8af09a52342c7483289b0ffff03d1451db64455493255478e5e015fca"
+    "sha256": "1a738dc1974426b7de5040afdd6911c0ed50c49ad3db5d89403b454ba5787a37"
   },
   "xai-models": {
     "provider": "xAI",
@@ -57,7 +57,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Grok Models & Pricing | SpaceXAI Docs",
-    "sha256": "de325397636849274dd412e99817d79ec17de8ffcc962ec679572037342c19ce"
+    "sha256": "bd351281d3eda56e18296e4fd25d64cc6e7307dce536531f4abf8172b1cbc7bf"
   },
   "microsoft-foundry-models": {
     "provider": "Microsoft",
@@ -77,7 +77,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "GPT-6 Astra - API Pricing & Benchmarks | OpenRouter",
-    "sha256": "d7cb7d075ba6b7ea863ea5537949ec62eb6bb5044174cac57afe9818637bf8fa"
+    "sha256": "30089236ee4052248e6cc99bfb4a5273d4fe4ef772cbacea21c33fea70b8e8ac"
   },
   "artificial-analysis-models": {
     "provider": "Artificial Analysis",
