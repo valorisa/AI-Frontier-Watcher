@@ -73,9 +73,14 @@ def source_snapshot(item: dict[str, object]) -> dict[str, object]:
 def accessibility_state(snapshot: dict[str, object]) -> str | None:
     """Retourne l'état d'accessibilité connu de la source."""
     status_class = snapshot.get("status_class")
-    if status_class in {"accessible", "inaccessible"}:
-        return str(status_class)
+    if status_class == "accessible":
+        return "accessible"
     return None
+
+
+def is_non_content_observation(snapshot: dict[str, object]) -> bool:
+    """Indique si l'observation ne doit pas remplacer l'état accepté."""
+    return snapshot.get("status_class") in {"inconclusive", "not_found"}
 
 
 def compare_sources(
@@ -108,6 +113,24 @@ def compare_sources(
             continue
 
         old = previous[source_id]
+
+        if is_non_content_observation(snapshot):
+            observation_type = (
+                "collection_inconclusive"
+                if snapshot.get("status_class") == "inconclusive"
+                else "source_not_found"
+            )
+            changes.append(
+                {
+                    "type": observation_type,
+                    "id": source_id,
+                    "current": snapshot,
+                    "previous": old,
+                }
+            )
+            current[source_id] = old
+            continue
+
         old_accessibility = accessibility_state(old)
         new_accessibility = accessibility_state(snapshot)
 
@@ -242,6 +265,42 @@ def append_change(
             change,
             provider,
             url,
+        )
+
+    elif change_type in {"collection_inconclusive", "source_not_found"}:
+        status = current.get("status", "—")
+        error = current.get("error", "erreur inconnue")
+
+        if change_type == "source_not_found":
+            heading = "Source non trouvée"
+            interpretation = (
+                "HTTP 404 indique que l'URL contrôlée n'a pas été "
+                "trouvée au moment de la collecte."
+            )
+        else:
+            heading = "Collecte non concluante"
+            interpretation = (
+                "cette observation ne permet pas de déterminer "
+                "l'état réel de la source."
+            )
+
+        lines.extend(
+            [
+                f"### {heading} — {provider} / `{source_id}`",
+                "",
+                f"- URL : {url}",
+                f"- Observation : `{status}`",
+                f"- Détail : {error}",
+                "",
+                f"**Interprétation :** {interpretation}",
+                "",
+                "**État accepté conservé :** aucune donnée de cette "
+                "collecte ne remplace l'état de référence.",
+                "",
+                "**Action humaine requise :** vérifier la source "
+                "indépendamment avant toute modification éditoriale.",
+                "",
+            ]
         )
 
     elif change_type == "changed":
