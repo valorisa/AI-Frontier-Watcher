@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Reports generated locally
+reports/*.md
+reports/*.json
+!reports/.gitkeep
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Editors
+.vscode/
+.idea/

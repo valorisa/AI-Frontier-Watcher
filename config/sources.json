@@ -1,0 +1,74 @@
+[
+  {
+    "id": "openai-astra-launch",
+    "level": 1,
+    "provider": "OpenAI",
+    "kind": "announcement",
+    "url": "https://openai.com/index/gpt-6-astra/",
+    "priority": "high"
+  },
+  {
+    "id": "openai-astra-api",
+    "level": 2,
+    "provider": "OpenAI",
+    "kind": "api-model-documentation",
+    "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+    "priority": "high"
+  },
+  {
+    "id": "openai-chatgpt-models",
+    "level": 2,
+    "provider": "OpenAI",
+    "kind": "product-documentation",
+    "url": "https://help.openai.com/en/articles/20001354-gpt-5-6-in-chatgpt",
+    "priority": "high"
+  },
+  {
+    "id": "anthropic-news",
+    "level": 1,
+    "provider": "Anthropic",
+    "kind": "newsroom",
+    "url": "https://www.anthropic.com/news",
+    "priority": "high"
+  },
+  {
+    "id": "google-gemini-models",
+    "level": 2,
+    "provider": "Google",
+    "kind": "api-model-documentation",
+    "url": "https://ai.google.dev/gemini-api/docs/models",
+    "priority": "high"
+  },
+  {
+    "id": "xai-models",
+    "level": 2,
+    "provider": "xAI",
+    "kind": "api-model-documentation",
+    "url": "https://docs.x.ai/developers/models",
+    "priority": "high"
+  },
+  {
+    "id": "microsoft-foundry-models",
+    "level": 2,
+    "provider": "Microsoft",
+    "kind": "model-catalog",
+    "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
+    "priority": "high"
+  },
+  {
+    "id": "openrouter-astra",
+    "level": 1,
+    "provider": "OpenRouter",
+    "kind": "model-catalog",
+    "url": "https://openrouter.ai/openai/gpt-6-astra",
+    "priority": "high"
+  },
+  {
+    "id": "artificial-analysis-models",
+    "level": 3,
+    "provider": "Artificial Analysis",
+    "kind": "independent-analysis",
+    "url": "https://artificialanalysis.ai/models/",
+    "priority": "medium"
+  }
+]

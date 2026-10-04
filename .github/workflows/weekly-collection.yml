@@ -1,0 +1,37 @@
+name: Weekly collection
+
+on:
+  schedule:
+    - cron: "0 8 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Collect sources
+        continue-on-error: true
+        run: python scripts/collect_sources.py
+
+      - name: Upload weekly report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-report-${{ github.run_number }}
+          path: |
+            reports/*.md
+            reports/*.json
+          if-no-files-found: error
+          retention-days: 90
