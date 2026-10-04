@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
+
 """Collecte hebdomadaire des sources de veille AI-Frontier-Watcher.
 
 La collecte ne modifie pas le README. Elle produit un rapport destiné à une
 validation humaine avant publication.
+
+Une source inaccessible ne fait pas échouer la collecte : son statut est
+conservé explicitement dans les rapports Markdown et JSON. En revanche, les
+erreurs internes du collecteur restent fatales.
 """
 
 from __future__ import annotations
@@ -17,11 +22,15 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES_FILE = ROOT / "config" / "sources.json"
 REPORT_DIR = ROOT / "reports"
-USER_AGENT = "AI-Frontier-Watcher/0.1 (+https://github.com/valorisa/AI-Frontier-Watcher)"
+
+USER_AGENT = (
+    "AI-Frontier-Watcher/0.1 "
+    "(+https://github.com/valorisa/AI-Frontier-Watcher)"
+)
+
 TIMEOUT = 30
 
 
@@ -33,7 +42,11 @@ class TitleParser(HTMLParser):
         self.in_title = False
         self.parts: list[str] = []
 
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+    def handle_starttag(
+        self,
+        tag: str,
+        attrs: list[tuple[str, str | None]],
+    ) -> None:
         if tag.lower() == "title":
             self.in_title = True
 
@@ -47,7 +60,21 @@ class TitleParser(HTMLParser):
 
     @property
     def title(self) -> str:
+        """Retourne le titre HTML normalisé."""
         return " ".join("".join(self.parts).split())
+
+
+def classify_http_status(status: int) -> str:
+    """Classe un statut HTTP pour le rapport de veille."""
+    if status == 200:
+        return "accessible"
+    if status == 403:
+        return "inaccessible"
+    if status == 404:
+        return "inaccessible"
+    if status == 429:
+        return "inaccessible"
+    return "inaccessible"
 
 
 def fetch_source(source: dict[str, object]) -> dict[str, object]:
@@ -69,28 +96,60 @@ def fetch_source(source: dict[str, object]) -> dict[str, object]:
         with urlopen(request, timeout=TIMEOUT) as response:
             body = response.read()
             content_type = response.headers.get("Content-Type", "")
-            encoding_match = re.search(r"charset=([\w-]+)", content_type, re.I)
-            encoding = encoding_match.group(1) if encoding_match else "utf-8"
+
+            encoding_match = re.search(
+                r"charset=([\w-]+)",
+                content_type,
+                re.I,
+            )
+            encoding = (
+                encoding_match.group(1)
+                if encoding_match
+                else "utf-8"
+            )
 
             text = body.decode(encoding, errors="replace")
+
             parser = TitleParser()
             parser.feed(text)
 
             result.update(
                 {
                     "status": response.status,
+                    "status_class": classify_http_status(response.status),
                     "content_type": content_type,
                     "title": parser.title,
                     "sha256": hashlib.sha256(body).hexdigest(),
                     "bytes": len(body),
                 }
             )
+
     except HTTPError as exc:
-        result.update({"status": exc.code, "error": f"HTTP {exc.code}"})
+        result.update(
+            {
+                "status": exc.code,
+                "status_class": classify_http_status(exc.code),
+                "error": f"HTTP {exc.code}",
+            }
+        )
+
     except (URLError, TimeoutError) as exc:
-        result.update({"status": None, "error": str(exc)})
+        result.update(
+            {
+                "status": None,
+                "status_class": "inaccessible",
+                "error": str(exc),
+            }
+        )
+
     except UnicodeError as exc:
-        result.update({"status": None, "error": f"Encoding error: {exc}"})
+        result.update(
+            {
+                "status": None,
+                "status_class": "inaccessible",
+                "error": f"Encoding error: {exc}",
+            }
+        )
 
     return result
 
@@ -111,6 +170,16 @@ def build_report(results: list[dict[str, object]]) -> str:
     """Construit le rapport Markdown destiné à la revue humaine."""
 
     now = datetime.now(UTC)
+
+    accessible = [
+        item for item in results if item.get("status_class") == "accessible"
+    ]
+    inaccessible = [
+        item
+        for item in results
+        if item.get("status_class") != "accessible"
+    ]
+
     lines = [
         "# Rapport hebdomadaire de veille",
         "",
@@ -121,17 +190,30 @@ def build_report(results: list[dict[str, object]]) -> str:
         "",
         "## Résumé de collecte",
         "",
-        "| Source | Niveau | HTTP | Titre | Empreinte |",
-        "| --- | ---: | ---: | --- | --- |",
+        f"- Sources contrôlées : **{len(results)}**",
+        f"- Sources accessibles : **{len(accessible)}**",
+        f"- Sources inaccessibles : **{len(inaccessible)}**",
+        "",
+        "| Source | Niveau | Statut | HTTP | Titre | Empreinte |",
+        "| --- | ---: | --- | ---: | --- | --- |",
     ]
 
     for item in results:
-        status = item.get("status", "erreur")
-        title = str(item.get("title", item.get("error", "non disponible")))
+        status = item.get("status")
+        status_text = str(item.get("status_class", "inaccessible"))
+        title = str(
+            item.get(
+                "title",
+                item.get("error", "non disponible"),
+            )
+        )
         digest = str(item.get("sha256", ""))[:12] or "—"
+        http_status = str(status) if status is not None else "—"
+
         lines.append(
             f"| {item['provider']} / `{item['id']}` | {item['level']} | "
-            f"{status} | {title} | `{digest}` |"
+            f"**{status_text}** | {http_status} | {title} | "
+            f"`{digest}` |"
         )
 
     lines.extend(
@@ -139,17 +221,28 @@ def build_report(results: list[dict[str, object]]) -> str:
             "",
             "## Interprétation",
             "",
-            "Une modification d'empreinte indique que le contenu récupéré a "
-            "changé. Elle ne constitue pas, à elle seule, la preuve d'un "
-            "changement de modèle ou de disponibilité.",
+            "Une source **accessible** a répondu avec HTTP 200 et son "
+            "contenu a été analysé.",
+            "",
+            "Une source **inaccessible** n'a pas pu être récupérée par "
+            "cette méthode de collecte. Cela ne constitue pas une preuve "
+            "d'indisponibilité de la source elle-même.",
+            "",
+            "Un statut HTTP 403, 404 ou 429, ou une erreur réseau, est "
+            "conservé comme information de collecte sans contournement "
+            "des protections de la source.",
+            "",
+            "Une modification d'empreinte indique que le contenu récupéré "
+            "a changé. Elle ne constitue pas, à elle seule, la preuve "
+            "d'un changement de modèle ou de disponibilité.",
             "",
             "La validation humaine doit comparer le contenu source et "
             "déterminer si une mise à jour du README est justifiée.",
             "",
             "## Données brutes",
             "",
-            "Les métadonnées complètes sont conservées dans le rapport JSON "
-            "produit avec cette exécution.",
+            "Les métadonnées complètes sont conservées dans le rapport "
+            "JSON produit avec cette exécution.",
             "",
         ]
     )
@@ -169,19 +262,44 @@ def main() -> int:
     report_path = REPORT_DIR / f"weekly-{date}.md"
     json_path = REPORT_DIR / f"weekly-{date}.json"
 
-    report_path.write_text(build_report(results), encoding="utf-8")
+    report_path.write_text(
+        build_report(results),
+        encoding="utf-8",
+    )
+
     json_path.write_text(
         json.dumps(results, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
 
-    failures = [item for item in results if item.get("status") != 200]
+    inaccessible = [
+        item
+        for item in results
+        if item.get("status_class") != "accessible"
+    ]
+
     print(f"Sources contrôlées : {len(results)}")
-    print(f"Erreurs HTTP/réseau : {len(failures)}")
+    print(f"Sources accessibles : {len(results) - len(inaccessible)}")
+    print(f"Sources inaccessibles : {len(inaccessible)}")
     print(f"Rapport : {report_path}")
     print(f"Données JSON : {json_path}")
 
-    return 0 if not failures else 1
+    for item in inaccessible:
+        status = item.get("status")
+        status_text = (
+            f"HTTP {status}"
+            if status is not None
+            else str(item.get("error", "erreur inconnue"))
+        )
+        message = (
+            f"{item['provider']} / {item['id']} : "
+            f"source inaccessible ({status_text})"
+        )
+        print(f"::warning::{message}")
+
+    # Une source inaccessible est un résultat de collecte, pas une
+    # défaillance du collecteur. Les erreurs internes restent fatales.
+    return 0
 
 
 if __name__ == "__main__":
