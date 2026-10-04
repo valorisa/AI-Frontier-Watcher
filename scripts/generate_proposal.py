@@ -280,12 +280,11 @@ def main() -> int:
     previous = load_state()
     changes, current = compare_sources(results, previous)
 
-    PROPOSAL_DIR.mkdir(parents=True, exist_ok=True)
-
     date = datetime.now(UTC).date().isoformat()
     proposal_path = PROPOSAL_DIR / f"weekly-{date}.md"
 
     if changes:
+        PROPOSAL_DIR.mkdir(parents=True, exist_ok=True)
         proposal_path.write_text(
             build_proposal(report_path, changes),
             encoding="utf-8",
@@ -296,6 +295,8 @@ def main() -> int:
     else:
         if proposal_path.exists():
             proposal_path.unlink()
+        if OBSERVED_STATE_FILE.exists():
+            OBSERVED_STATE_FILE.unlink()
         print("Aucune proposition générée : aucun changement détecté.")
 
     print(f"Rapport analysé : {report_path}")
