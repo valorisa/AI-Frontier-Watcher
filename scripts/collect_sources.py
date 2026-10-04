@@ -65,16 +65,14 @@ class TitleParser(HTMLParser):
 
 
 def classify_http_status(status: int) -> str:
-    """Classe un statut HTTP pour le rapport de veille."""
+    """Classe un statut HTTP sans confondre échec de collecte et indisponibilité."""
     if status == 200:
         return "accessible"
-    if status == 403:
-        return "inaccessible"
     if status == 404:
-        return "inaccessible"
-    if status == 429:
-        return "inaccessible"
-    return "inaccessible"
+        return "not_found"
+    if status in {403, 429}:
+        return "inconclusive"
+    return "inconclusive"
 
 
 def fetch_source(source: dict[str, object]) -> dict[str, object]:
@@ -137,7 +135,7 @@ def fetch_source(source: dict[str, object]) -> dict[str, object]:
         result.update(
             {
                 "status": None,
-                "status_class": "inaccessible",
+                "status_class": "inconclusive",
                 "error": str(exc),
             }
         )
@@ -146,7 +144,7 @@ def fetch_source(source: dict[str, object]) -> dict[str, object]:
         result.update(
             {
                 "status": None,
-                "status_class": "inaccessible",
+                "status_class": "inconclusive",
                 "error": f"Encoding error: {exc}",
             }
         )
@@ -174,10 +172,12 @@ def build_report(results: list[dict[str, object]]) -> str:
     accessible = [
         item for item in results if item.get("status_class") == "accessible"
     ]
-    inaccessible = [
-        item
-        for item in results
-        if item.get("status_class") != "accessible"
+    inconclusive = [
+        item for item in results
+        if item.get("status_class") == "inconclusive"
+    ]
+    not_found = [
+        item for item in results if item.get("status_class") == "not_found"
     ]
 
     lines = [
@@ -192,7 +192,8 @@ def build_report(results: list[dict[str, object]]) -> str:
         "",
         f"- Sources contrôlées : **{len(results)}**",
         f"- Sources accessibles : **{len(accessible)}**",
-        f"- Sources inaccessibles : **{len(inaccessible)}**",
+        f"- Collectes non concluantes : **{len(inconclusive)}**",
+        f"- Sources retournant HTTP 404 : **{len(not_found)}**",
         "",
         "| Source | Niveau | Statut | HTTP | Titre | Empreinte |",
         "| --- | ---: | --- | ---: | --- | --- |",
@@ -200,7 +201,7 @@ def build_report(results: list[dict[str, object]]) -> str:
 
     for item in results:
         status = item.get("status")
-        status_text = str(item.get("status_class", "inaccessible"))
+        status_text = str(item.get("status_class", "inconclusive"))
         title = str(
             item.get(
                 "title",
@@ -224,13 +225,17 @@ def build_report(results: list[dict[str, object]]) -> str:
             "Une source **accessible** a répondu avec HTTP 200 et son "
             "contenu a été analysé.",
             "",
-            "Une source **inaccessible** n'a pas pu être récupérée par "
-            "cette méthode de collecte. Cela ne constitue pas une preuve "
+            "Une collecte **non concluante** n'a pas permis de déterminer "
+            "l'état réel de la source. Cela ne constitue pas une preuve "
             "d'indisponibilité de la source elle-même.",
             "",
-            "Un statut HTTP 403, 404 ou 429, ou une erreur réseau, est "
-            "conservé comme information de collecte sans contournement "
+            "Un statut HTTP 403 ou 429, ou une erreur réseau ou d'encodage, "
+            "est conservé comme information de collecte sans contournement "
             "des protections de la source.",
+            "",
+            "Un statut HTTP 404 indique que l'URL contrôlée n'a pas été "
+            "trouvée au moment de la collecte. Il nécessite une validation "
+            "humaine avant toute modification de l'état accepté.",
             "",
             "Une modification d'empreinte indique que le contenu récupéré "
             "a changé. Elle ne constitue pas, à elle seule, la preuve "
@@ -272,19 +277,30 @@ def main() -> int:
         encoding="utf-8",
     )
 
-    inaccessible = [
+    accessible = [
         item
         for item in results
-        if item.get("status_class") != "accessible"
+        if item.get("status_class") == "accessible"
+    ]
+    inconclusive = [
+        item
+        for item in results
+        if item.get("status_class") == "inconclusive"
+    ]
+    not_found = [
+        item
+        for item in results
+        if item.get("status_class") == "not_found"
     ]
 
     print(f"Sources contrôlées : {len(results)}")
-    print(f"Sources accessibles : {len(results) - len(inaccessible)}")
-    print(f"Sources inaccessibles : {len(inaccessible)}")
+    print(f"Sources accessibles : {len(accessible)}")
+    print(f"Collectes non concluantes : {len(inconclusive)}")
+    print(f"Sources HTTP 404 : {len(not_found)}")
     print(f"Rapport : {report_path}")
     print(f"Données JSON : {json_path}")
 
-    for item in inaccessible:
+    for item in inconclusive + not_found:
         status = item.get("status")
         status_text = (
             f"HTTP {status}"
@@ -293,11 +309,11 @@ def main() -> int:
         )
         message = (
             f"{item['provider']} / {item['id']} : "
-            f"source inaccessible ({status_text})"
+            f"collecte non concluante ({status_text})"
         )
         print(f"::warning::{message}")
 
-    # Une source inaccessible est un résultat de collecte, pas une
+    # Une collecte non concluante est un résultat de collecte, pas une
     # défaillance du collecteur. Les erreurs internes restent fatales.
     return 0
 
