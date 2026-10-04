@@ -153,6 +153,59 @@ def compare_sources(
     return changes, current
 
 
+def append_accessibility_change(
+    lines: list[str],
+    change: dict[str, object],
+    provider: object,
+    url: object,
+) -> None:
+    """Ajoute le rendu Markdown d'un changement d'accessibilité."""
+    previous = change.get("previous", {})
+    current = change.get("current", {})
+
+    old_status = previous.get("status", "—")
+    new_status = current.get("status", "—")
+    old_class = previous.get("status_class", "—")
+    new_class = current.get("status_class", "—")
+
+    if change.get("to") == "accessible":
+        heading = (
+            f"### Source de nouveau accessible — "
+            f"{provider} / `{change['id']}`"
+        )
+        note = (
+            "Le contenu est de nouveau récupérable. La nouvelle "
+            "empreinte ne doit pas être interprétée comme une "
+            "modification du contenu pendant la période inaccessible."
+        )
+    else:
+        heading = (
+            f"### Source devenue inaccessible — "
+            f"{provider} / `{change['id']}`"
+        )
+        note = (
+            "Le contenu n'est plus récupérable. L'absence d'empreinte "
+            "ne constitue pas une modification du contenu."
+        )
+
+    lines.extend(
+        [
+            heading,
+            "",
+            f"- URL : {url}",
+            f"- Accessibilité : `{old_class}` → `{new_class}`",
+            f"- HTTP : `{old_status}` → `{new_status}`",
+            "",
+            f"**Interprétation :** {note}",
+            "",
+            "**Action humaine requise :** vérifier la source et "
+            "déterminer si cette évolution a une signification "
+            "éditoriale.",
+            "",
+        ]
+    )
+
+
 def append_change(
     lines: list[str],
     change: dict[str, object],
@@ -184,46 +237,11 @@ def append_change(
         )
 
     elif change_type == "accessibility_changed":
-        old_status = previous.get("status", "—")
-        new_status = current.get("status", "—")
-        old_class = previous.get("status_class", "—")
-        new_class = current.get("status_class", "—")
-
-        if change.get("to") == "accessible":
-            heading = (
-                f"### Source de nouveau accessible — "
-                f"{provider} / `{source_id}`"
-            )
-            note = (
-                "Le contenu est de nouveau récupérable. La nouvelle "
-                "empreinte ne doit pas être interprétée comme une "
-                "modification du contenu pendant la période inaccessible."
-            )
-        else:
-            heading = (
-                f"### Source devenue inaccessible — "
-                f"{provider} / `{source_id}`"
-            )
-            note = (
-                "Le contenu n'est plus récupérable. L'absence d'empreinte "
-                "ne constitue pas une modification du contenu."
-            )
-
-        lines.extend(
-            [
-                heading,
-                "",
-                f"- URL : {url}",
-                f"- Accessibilité : `{old_class}` → `{new_class}`",
-                f"- HTTP : `{old_status}` → `{new_status}`",
-                "",
-                f"**Interprétation :** {note}",
-                "",
-                "**Action humaine requise :** vérifier la source et "
-                "déterminer si cette évolution a une signification "
-                "éditoriale.",
-                "",
-            ]
+        append_accessibility_change(
+            lines,
+            change,
+            provider,
+            url,
         )
 
     elif change_type == "changed":
@@ -273,6 +291,8 @@ def append_change(
                 "",
             ]
         )
+
+
 
 
 def build_proposal(
