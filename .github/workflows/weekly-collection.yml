@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
   collect:
@@ -14,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v5
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -23,6 +24,51 @@ jobs:
 
       - name: Collect sources
         run: python scripts/collect_sources.py
+
+      - name: Generate proposal
+        run: python scripts/generate_proposal.py
+
+      - name: Promote observed state in PR branch
+        shell: bash
+        run: |
+          if [ ! -f proposals/source-state-observed.json ]; then
+            echo "Aucun changement détecté."
+            echo "Aucune proposition à publier."
+            exit 0
+          fi
+
+          cp proposals/source-state-observed.json config/source-state.json
+          echo "État observé copié vers config/source-state.json."
+
+      - name: Detect proposal
+        id: proposal
+        shell: bash
+        run: |
+          proposal="$(find proposals -maxdepth 1 -type f -name 'weekly-*.md' -print -quit 2>/dev/null || true)"
+
+          if [ -z "$proposal" ]; then
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Aucune proposition Markdown détectée."
+            exit 0
+          fi
+
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+          echo "path=$proposal" >> "$GITHUB_OUTPUT"
+          echo "Proposition détectée : $proposal"
+
+      - name: Create or update Pull Request
+        if: steps.proposal.outputs.exists == 'true'
+        uses: peter-evans/create-pull-request@v8.1.1
+        with:
+          branch: automation/source-state-update
+          base: main
+          delete-branch: false
+          draft: always-true
+          add-paths: |
+            config/source-state.json
+          title: "chore: update observed source state"
+          commit-message: "chore: update accepted source state candidate"
+          body-path: ${{ steps.proposal.outputs.path }}
 
       - name: Upload weekly report
         if: always()
