@@ -70,11 +70,25 @@ def source_snapshot(item: dict[str, object]) -> dict[str, object]:
     }
 
 
+def accessibility_state(snapshot: dict[str, object]) -> str | None:
+    """Retourne l'état d'accessibilité connu de la source."""
+    status_class = snapshot.get("status_class")
+    if status_class in {"accessible", "inaccessible"}:
+        return str(status_class)
+    return None
+
+
 def compare_sources(
     results: list[dict[str, object]],
     previous: dict[str, dict[str, object]],
 ) -> tuple[list[dict[str, object]], dict[str, dict[str, object]]]:
-    """Compare la collecte courante avec l'état accepté."""
+    """Compare la collecte courante avec l'état accepté.
+
+    Les transitions d'accessibilité sont distinguées des changements
+    de contenu. Une source inaccessible ne fournit pas de contenu
+    comparable : ``sha256=None`` ne doit donc pas être traité comme
+    une nouvelle empreinte.
+    """
     changes: list[dict[str, object]] = []
     current: dict[str, dict[str, object]] = {}
 
@@ -94,6 +108,21 @@ def compare_sources(
             continue
 
         old = previous[source_id]
+        old_accessibility = accessibility_state(old)
+        new_accessibility = accessibility_state(snapshot)
+
+        if old_accessibility != new_accessibility:
+            changes.append(
+                {
+                    "type": "accessibility_changed",
+                    "id": source_id,
+                    "current": snapshot,
+                    "previous": old,
+                    "from": old_accessibility,
+                    "to": new_accessibility,
+                }
+            )
+            continue
 
         changed_fields = [
             field
@@ -183,6 +212,49 @@ def build_proposal(
                     "",
                     "**Action humaine requise :** vérifier la source et déterminer "
                     "si elle justifie une modification du README.",
+                    "",
+                ]
+            )
+
+        elif change_type == "accessibility_changed":
+            old_status = previous.get("status", "—")
+            new_status = current.get("status", "—")
+            old_class = previous.get("status_class", "—")
+            new_class = current.get("status_class", "—")
+
+            if change.get("to") == "accessible":
+                heading = (
+                    f"### Source de nouveau accessible — "
+                    f"{provider} / `{source_id}`"
+                )
+                note = (
+                    "Le contenu est de nouveau récupérable. La nouvelle "
+                    "empreinte ne doit pas être interprétée comme une "
+                    "modification du contenu pendant la période inaccessible."
+                )
+            else:
+                heading = (
+                    f"### Source devenue inaccessible — "
+                    f"{provider} / `{source_id}`"
+                )
+                note = (
+                    "Le contenu n'est plus récupérable. L'absence d'empreinte "
+                    "ne constitue pas une modification du contenu."
+                )
+
+            lines.extend(
+                [
+                    heading,
+                    "",
+                    f"- URL : {url}",
+                    f"- Accessibilité : `{old_class}` → `{new_class}`",
+                    f"- HTTP : `{old_status}` → `{new_status}`",
+                    "",
+                    f"**Interprétation :** {note}",
+                    "",
+                    "**Action humaine requise :** vérifier la source et "
+                    "déterminer si cette évolution a une signification "
+                    "éditoriale.",
                     "",
                 ]
             )
