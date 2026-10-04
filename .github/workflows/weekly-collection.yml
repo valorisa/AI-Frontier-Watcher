@@ -22,12 +22,11 @@ jobs:
           python-version: "3.13"
 
       - name: Collect sources
-        continue-on-error: true
         run: python scripts/collect_sources.py
 
       - name: Upload weekly report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: weekly-report-${{ github.run_number }}
           path: |
