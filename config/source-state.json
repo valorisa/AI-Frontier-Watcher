@@ -17,7 +17,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "GPT-6 Astra Model | OpenAI API",
-    "sha256": "e3c6fcd6437c7ba9cd5a7ac577498a62f6ac5d100755df51bdbd8e3e08640555"
+    "sha256": "9652aae92ab37673a445087956a4e4fbe07013f52818b96e5d46e3c057ee3374"
   },
   "openai-chatgpt-models": {
     "provider": "OpenAI",
@@ -37,7 +37,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Newsroom \\ Anthropic",
-    "sha256": "fb9c13fd8641505f6a32931f7dd6d8ec6598920b0abf8ae1b135322892643171"
+    "sha256": "0cb220243efb5e41802275e7e3a7d044ef25a0aa6b9c892cd76fd3e6eabfaa1c"
   },
   "google-gemini-models": {
     "provider": "Google",
@@ -47,7 +47,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Models | Gemini API | Google AI for Developers",
-    "sha256": "88066e58bb6a05672f602f47a068288e772a0b56ec61b5d311538d15662c553c"
+    "sha256": "8717eb586dac02b09d2d21e186e71e8dd86f68e95be3a1e24e11f1daef79fcb8"
   },
   "xai-models": {
     "provider": "xAI",
@@ -57,7 +57,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Grok Models & Pricing | SpaceXSI Docs",
-    "sha256": "86a3c58d13ca8fe231fe0b7eb5c0445dc525e4ab58480dfc905dfa3d23af88b1"
+    "sha256": "aea21987d05a4934a922e830327cbd98dbc1991790ffddcd307bd6201e65e1e7"
   },
   "microsoft-foundry-models": {
     "provider": "Microsoft",
@@ -67,7 +67,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Foundry Models sold by Azure - Microsoft Foundry | Microsoft Learn",
-    "sha256": "59080012ebe9f4ecafe41a0f612826280d92ca3ab676e4e91fe463d602f32018"
+    "sha256": "5073a5183d33d3db9ba7383ec7d5fe977ed77bb05cb6a40cd9a9772a5c324ef9"
   },
   "openrouter-astra": {
     "provider": "OpenRouter",
@@ -77,7 +77,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "GPT-6 Astra - API Pricing & Benchmarks | OpenRouter",
-    "sha256": "ddde7629e28deade839a280efe4bae16ff3856974186d1ae3ddeb6bdcdb58c86"
+    "sha256": "4408af1e35367f17bac14c35f694e2c77bbe4e4f0313bc6b71f9d19e490b1428"
   },
   "artificial-analysis-models": {
     "provider": "Artificial Analysis",
@@ -87,6 +87,6 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Comparison of AI Models across Intelligence, Performance, and Price | Artificial Analysis",
-    "sha256": "b853de8c164d6f1eeb311fae0fe8fdb0e16809f1c0ceb25df63069b9ec01594e"
+    "sha256": "abe3cb86ede6214b2e040f2fb6f286da1f57b5fc659b2c96b9a2dcb9d44f95a0"
   }
 }
