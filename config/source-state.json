@@ -7,7 +7,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "GPT-6 Astra: A new generation of intelligence | OpenAI",
-    "sha256": "7473c2bcb01702a9f084e98d08cbff3a21a5b8ff61e321ff2e67ec6e17b4cda3"
+    "sha256": "c445f487dfb8eabc92744596e6c3fbd0844b8655f9a6a62b3e3a48cfd8d40d1f"
   },
   "openai-astra-api": {
     "provider": "OpenAI",
@@ -17,7 +17,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "GPT-6 Astra Model | OpenAI API",
-    "sha256": "2a90df536facd8f3413df01e9b994e50e06d05c97f87726ec9c93d119c3f20c3"
+    "sha256": "6dd2657c9eb119c6a1486a43ac3cbf83ce7a48d5cc8f2b1cb1b183d1043f7fe5"
   },
   "openai-chatgpt-models": {
     "provider": "OpenAI",
@@ -26,8 +26,8 @@
     "priority": "high",
     "status": 200,
     "status_class": "accessible",
-    "title": "GPT-5.6 and GPT-6 Pro in ChatGPT | OpenAI Help Center",
-    "sha256": "f3e9222a24536cd30fb31e89ec1b866e484754d5ce1d251a2865a98f1941fe55"
+    "title": "GPT-6 and other models in ChatGPT | OpenAI Help Center",
+    "sha256": "a3bbcee9d619879fc872759e75221f2bb5dc2075fbf8c9e9007fc2447a103f26"
   },
   "anthropic-news": {
     "provider": "Anthropic",
@@ -37,7 +37,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Newsroom \\ Anthropic",
-    "sha256": "af0975d46626208c122044d23feaca5033400918a4e3fee87dac8bb8fdc77f9e"
+    "sha256": "af8c7e601d684780514075b0aa73f2893123fe0d75b82c00611a784ce76e6c9e"
   },
   "google-gemini-models": {
     "provider": "Google",
@@ -47,7 +47,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Models - Gemini API | Google AI Studio",
-    "sha256": "e6bfa5dc0723f9d6bbc64049ed1f22203f21fbeb0e5dff53401056893a84459d"
+    "sha256": "44a55ee709e920ca9a8ecd4cd4626cf0374f1adc7ff58a807d5e3fc4dc0d06e0"
   },
   "xai-models": {
     "provider": "xAI",
@@ -57,7 +57,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Grok Models & Pricing | SpaceXSI Docs",
-    "sha256": "c22f050977a47ab1a8dae35efa7363910114c8761a20bc4878bf639734b73fb5"
+    "sha256": "eef6adff1f21235e8aec489ca3fd843ff71841c51decba364567defd58957fc1"
   },
   "microsoft-foundry-models": {
     "provider": "Microsoft",
@@ -67,7 +67,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Foundry Models sold by Azure - Microsoft Foundry | Microsoft Learn",
-    "sha256": "28b97f93756ff576abb273bf612f27ab4757689a2cbf3901082675506c5dcb7b"
+    "sha256": "136e5b1d93615fb06478a399323d38ef1f8979ca9c6c25c425b4291b1fb0581b"
   },
   "openrouter-astra": {
     "provider": "OpenRouter",
@@ -77,7 +77,7 @@
     "status": 200,
     "status_class": "accessible",
     "title": "GPT-6 Astra - API Pricing & Benchmarks | OpenRouter",
-    "sha256": "ec32d371263e189459491005304555e4bd068cbedf24855b6dc0f119c2066502"
+    "sha256": "429d8e7552bc7a8eeb67b962ebac96e4c678d7e2378852b84edf05dd59361e07"
   },
   "artificial-analysis-models": {
     "provider": "Artificial Analysis",
@@ -87,6 +87,6 @@
     "status": 200,
     "status_class": "accessible",
     "title": "Comparison of AI Models across Intelligence, Performance, and Price | Artificial Analysis",
-    "sha256": "9a42e8b84160d069638c003cabe7de44eed547223464039bc09cc1bf1ab5ba23"
+    "sha256": "1e5f6456ed434a3131c04ee2ed5549b5a0db4517c8d37177df558c8eaf00f47c"
   }
 }
